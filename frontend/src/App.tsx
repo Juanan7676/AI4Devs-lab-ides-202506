@@ -1,26 +1,51 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './hooks/useAuth';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import AddCandidate from './pages/AddCandidate';
+import Layout from './components/common/Layout';
+import { ROUTES } from './utils/constants';
 
-function App() {
+// Ruta protegida
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return null;
+  return isAuthenticated ? <>{children}</> : <Navigate to={ROUTES.LOGIN} replace />;
+};
+
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path={ROUTES.LOGIN} element={<Login />} />
+          <Route
+            path={ROUTES.DASHBOARD}
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={ROUTES.ADD_CANDIDATE}
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <AddCandidate />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          {/* Redirección por defecto */}
+          <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;
