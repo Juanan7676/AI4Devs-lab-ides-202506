@@ -1,11 +1,17 @@
 import request from 'supertest';
-import { app } from '../index';
+import app from '../index';
 import { Request, Response, NextFunction } from 'express'; // Import the necessary types
 
-describe('GET /', () => {
-    it('responds with Hello World!', async () => {
-        const response = await request(app).get('/');
-        expect(response.statusCode).toBe(200);
-        expect(response.text).toBe('Hello World!');
-    });
+describe('App', () => {
+  it('should return 200 for health check', async () => {
+    const response = await request(app).get('/health');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('should return 200 for root endpoint', async () => {
+    const response = await request(app).get('/');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
 });
